@@ -16,7 +16,7 @@ my_theme <- bs_theme(
 ui <- 
   navbarPage("Gender Equality", theme = my_theme,
              tabPanel("Home","Summary of what this whole app is all about"),
-             tabPanel("Statistics by Region", "Quick summary on state of affairs",
+             tabPanel("Statistics by Region", "Quick summary on state of affairs", # Can change later to make drop down with different outcomes to chose from
                       fluidPage(
                         tabsetPanel(
                           tabPanel("Women's Empowerment Score", br(),
@@ -38,9 +38,29 @@ ui <-
                                      ), # end sidebar panel
                                      mainPanel(plotOutput(outputId = "gender_map")) # end mainpanel
                                    ) # end sidebarLayout
-                                   ) # end tabPanel "women empowerment score"
+                                   ), # end tabPanel "women empowerment score"
+                          tabPanel("Acceptance of IPV", br(),
+                                   sidebarLayout(
+                                     sidebarPanel(
+                                       selectInput(inputId = "pt_color",
+                                                   label = "Choose World Region",
+                                                   choices = c("North America",
+                                                               "Central America", 
+                                                               "South America",
+                                                               "Asia",
+                                                               "Europe",
+                                                               "Africa")),
+                                       radioButtons(inputId = "gender_data",
+                                                    label = "Choose Variables",
+                                                    choices = c("Year", 
+                                                                "Income", 
+                                                                "Education")),
+                                     ), # end sidebar panel
+                                     mainPanel(plotOutput(outputId = "gender_map")) # end mainpanel
+                                   ) # end sidebarLayout
+                          ), # end tabPanel "Acceptance of IPV")
                           
-                        )
+                        ) # end tabsetPanel
                       )),
              tabPanel("Interactive Map", "Here you can see an interactive world map aint it pretty?"),
              tabPanel("Slider of GE Index", "Here you can see an interactive world map aint it pretty?"),
