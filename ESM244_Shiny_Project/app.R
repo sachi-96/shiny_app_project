@@ -63,8 +63,16 @@ ui <-
                         ) # end tabsetPanel
                       )),
              tabPanel("Interactive Map", "Here you can see an interactive world map aint it pretty?"),
-             tabPanel("Slider of GE Index", "Here you can see an interactive world map aint it pretty?"),
+             tabPanel("Slider of GE Index", "Here you can see an interactive world map aint it pretty?",
+                      fluidRow(
+                        column(4,
+                               sliderInput("slider2", label = h3("Slider Range"), min = 0,
+                                           max = 100, value = c(40, 60))
+                        ) # end column
+                        ) # end fluid row
+                      ), # end tab panel "Slider of ge"
              tabPanel("Scatter Plot", "lookie here its a plot that you can play with"))
+             
 ### create user interface:
 # ui <- fluidPage(theme = my_theme,
 #   titlePanel(h1("Gender Inequality", align = "center")),
@@ -96,13 +104,13 @@ ui <-
 #     
 #   fluidRow(
 #     column(4,
-#            
-#            # Copy the line below to make a slider range 
-#            sliderInput("slider2", label = h3("Slider Range"), min = 0, 
+# 
+#            # Copy the line below to make a slider range
+#            sliderInput("slider2", label = h3("Slider Range"), min = 0,
 #                        max = 100, value = c(40, 60))
 #     )
 #   ),
-#   
+# #   
 #   hr(),
 #   
 #   fluidRow(
