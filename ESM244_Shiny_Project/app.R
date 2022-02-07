@@ -63,7 +63,7 @@ ui <-
                         ) # end tabsetPanel
                       )),
              tabPanel("Interactive Map", "Here you can see an interactive world map aint it pretty?"),
-             tabPanel("Slider of GE Index", "Here you can see an interactive world map aint it pretty?",
+             tabPanel("Slider of GE Index", "Use the slider tool to select a value from the gender equality index and see which countries reflect these values",
                       fluidRow(
                         column(4,
                                sliderInput("slider2", label = h3("Slider Range"), min = 0,
