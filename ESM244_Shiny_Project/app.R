@@ -17,11 +17,12 @@ ui <-
   navbarPage("Understanding the State of Gender Equality Globally", theme = my_theme,
              tabPanel("Home",
                       "While Gender Equality has been identified as a global goal, 
-                      progress towards Gender Equality remains slow with evidence of backsliding across some key indicators see: https://www.nytimes.com/2019/12/04/us/domestic-violence-international.html. 
+                      progress towards Gender Equality remains slow with evidence of backsliding across some key indicators. 
                       The purpose of this application is to increase awareness of the current state of affairs across regions and countries to promote positive change.",
                       fluidPage(
                         tabsetPanel(
-                          tabPanel("Key Articles", "See the Key articles below", br()),
+                          tabPanel("Key Articles", "See the Key articles below
+                                   see: https://www.nytimes.com/2019/12/04/us/domestic-violence-international.html", br()),
                           tabPanel("Current Interventions", "See list of ongoing interventions and ways to get involved"),
                           mainPanel(img(src = "gender-page_v-08.jpeg", height = 350, width = 350))
                         )
