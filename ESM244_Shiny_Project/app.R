@@ -18,7 +18,14 @@ ui <-
              tabPanel("Home",
                       "While Gender Equality has been identified as a global goal, 
                       progress towards Gender Equality remains slow with evidence of backsliding across some key indicators see: https://www.nytimes.com/2019/12/04/us/domestic-violence-international.html. 
-                      The purpose of this application is to increase awareness of the current state of affairs across regions and countries to promote positive change."),
+                      The purpose of this application is to increase awareness of the current state of affairs across regions and countries to promote positive change.",
+                      fluidPage(
+                        tabsetPanel(
+                          tabPanel("Key Articles", "See the Key articles below", br()),
+                          tabPanel("Current Interventions", "See list of ongoing interventions and ways to get involved"),
+                          mainPanel(img(src = "gender-page_v-08.jpeg", height = 350, width = 350))
+                        )
+                      )),
              tabPanel("Statistics by Region", "Quick summary on state of affairs", # Can change later to make drop down with different outcomes to chose from
                       fluidPage(
                         tabsetPanel(
@@ -61,7 +68,8 @@ ui <-
                                                                 "Income", 
                                                                 "Education")),
                                      ), # end sidebar panel
-                                     mainPanel(plotOutput(outputId = "gender_map")) # end mainpanel
+                                     mainPanel(img(src = "gender-page_v-08.jpeg", height = 350, width = 350),
+                                               plotOutput(outputId = "gender_map")) # end mainpanel
                                    ) # end sidebarLayout
                           ), # end tabPanel "Acceptance of IPV")
                           
