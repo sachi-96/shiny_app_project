@@ -5,10 +5,10 @@ library(bslib)
 
 ### Choose theme 
 my_theme <- bs_theme(
-  bg = 'lightblue',
-  fg = 'purple',
-  primary = 'yellow',
-  base_font = font_google('Fascinate')
+  bg = '#0b3d91',
+  fg = 'white',
+  primary = '#FCC780',
+  base_font = font_google("Space Mono")
 )
 
 ### create user interface:
@@ -29,7 +29,12 @@ ui <- fluidPage(theme = my_theme,
                                           "Income", 
                                           "Education")),
     ), # end sidebar panel
-    mainPanel("put map here",
+    mainPanel(
+      tabsetPanel(type = "tabs",
+                  tabPanel("Map"),
+                  tabPanel("Summary"),
+                  tabPanel("Interactive")),
+      "put map here",
               plotOutput(outputId = "gender_map")), # end mainPanel
     
    ), # end sidebarLayout
