@@ -24,21 +24,22 @@ ui <- fluidPage(theme = my_theme,
                                          "Europe",
                                          "Africa")),
                  radioButtons(inputId = "gender_data",
-                              label = "Choose Vairables:",
+                              label = "Choose Variables:",
                               choices = c("Year", 
                                           "Income", 
                                           "Education")),
     ), # end sidebar panel
     mainPanel(
       tabsetPanel(type = "tabs",
-                  tabPanel("Map"),
-                  tabPanel("Summary"),
-                  tabPanel("Interactive")),
-      "put map here",
+                  tabPanel("Home", "Summary of what this whole app is all about"),
+                  tabPanel("Statement of the Problem", "Quick summary on state of affairs"),
+                  tabPanel("Map", "Here you can see an interactive world map aint it pretty?"),
+                  tabPanel("Interactive Plot", "lookie here its a plot that you can play with")),
               plotOutput(outputId = "gender_map")), # end mainPanel
     
    ), # end sidebarLayout
-    fluidRow(
+    
+  fluidRow(
     column(4,
            
            # Copy the line below to make a slider range 
