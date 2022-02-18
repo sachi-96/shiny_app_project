@@ -4,6 +4,11 @@ library(here)
 library(bslib)
 library(ggplot2)
 library(shinythemes)
+library(readxl)
+
+
+
+gender_data <- read_xlsx(here("data", "Gender.xlsx"))
 
 ### Choose theme 
 my_theme <- bs_theme(
@@ -12,6 +17,11 @@ my_theme <- bs_theme(
   primary = '#FCC780',
   base_font = font_google("Righteous")
 )
+
+
+
+
+
 
 ui <- 
   navbarPage("Understanding the State of Gender Equality Globally", theme = my_theme,
