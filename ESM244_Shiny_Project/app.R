@@ -7,8 +7,25 @@ library(shinythemes)
 library(readxl)
 
 
-
+# Read in the data
 gender_data <- read_xlsx(here("data", "Gender.xlsx"))
+
+# Data wrangling
+gender_mod <- gender_data %>% 
+rename("HDI Rank" = ...1,
+       "Country" = ...2,
+       "Gender Equality Index '18" = ...3,
+       "Rank '18" = ...5,
+       "Maternal Mortality Ratio '15" = SDG3.1,
+       "Adolescent Birth Rate '15-'20" = SDG3.7,
+       "Seats in Parliment '18" = SDG5.5,
+       "Secondary Education (F)'10-'18" = SDG4.6,
+       "Secondary Education (M)'10-'18" = ...15,
+       "Labour Force Participation (F)'18" = ...17,
+       "Labour Force Participation (M)'18" = ...19) %>% 
+  select(-...4,-...6,-...8,-...10,-...12,-...14,-...16,-...18,-...20) %>% 
+  filter(!row_number() %in% c(1, 2, 3, 4, 5, 228:261)) 
+
 
 ### Choose theme 
 my_theme <- bs_theme(
