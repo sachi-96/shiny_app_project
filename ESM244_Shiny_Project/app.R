@@ -4,6 +4,30 @@ library(here)
 library(bslib)
 library(ggplot2)
 library(shinythemes)
+library(readxl)
+
+
+# Read in the data
+gender_data <- read_xlsx(here("data", "Gender.xlsx"))
+
+# Tidying the data 
+gender_mod <- gender_data %>% 
+rename("HDI Rank" = ...1,
+       "Country" = ...2,
+       "Gender Equality Index '18" = ...3,
+       "Rank '18" = ...5,
+       "Maternal Mortality Ratio '15" = SDG3.1,
+       "Adolescent Birth Rate '15-'20" = SDG3.7,
+       "Seats in Parliment '18" = SDG5.5,
+       "Secondary Education (F)'10-'18" = SDG4.6,
+       "Secondary Education (M)'10-'18" = ...15,
+       "Labour Force Participation (F)'18" = ...17,
+       "Labour Force Participation (M)'18" = ...19) %>% 
+  select(-...4,-...6,-...8,-...10,-...12,-...14,-...16,-...18,-...20) %>% 
+  filter(!row_number() %in% c(1, 2, 3, 4, 5, 228:261)) 
+   
+  
+
 
 ### Choose theme 
 my_theme <- bs_theme(
@@ -12,6 +36,11 @@ my_theme <- bs_theme(
   primary = '#FCC780',
   base_font = font_google("Righteous")
 )
+
+
+
+
+
 
 ui <- 
   navbarPage("Understanding the State of Gender Equality Globally", theme = my_theme,
@@ -77,6 +106,7 @@ ui <-
                         ) # end column
                         ) # end fluid row
                       ), # end tab panel "Slider of ge"
+<<<<<<< HEAD
              tabPanel("Scatter Plot", "lookie here its a plot that you can play with"),
              tabPanel("Get Informed & Involved", "We understand that understanding the problem is only the start to working towards solutions. 
                       The resources below provide opportunities for users to get informed on and involved in ongoing global movements towards gender equality. These resources include interventions
@@ -106,11 +136,46 @@ ui <-
                       ) # end fluid page "get involved"
                       ) # end tab panel "get involved"
              )
+=======
+             tabPanel("Scatter Plot", 
+                      plotOutput("plot1",
+                                 click = "plot_click",
+                                 dblclick = "plot_dblclick",
+                                 hover = "plot_hover",
+                                 brush = "plot_brush"
+                      ),
+                      verbatimTextOutput("info") 
+             ) # end scatter plot
+) # END END 
+>>>>>>> 2886accdb89409e797f6a83c186806167a2da06f
              
 
 ### create server function:
-server <- function(input, output) {
-}
+server <- function(input, output) 
+  { ### start server function
+  output$plot1 <- renderPlot({
+  plot(gender_mod$Country, gender_mod$`HDI Rank`)
+})
+
+output$info <- renderText({
+  xy_str <- function(e) {
+    if(is.null(e)) return("NULL\n")
+    paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
+  }
+  xy_range_str <- function(e) {
+    if(is.null(e)) return("NULL\n")
+    paste0("xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1), 
+           " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1))
+  }
+  
+  paste0(
+    "click: ", xy_str(input$plot_click),
+    "dblclick: ", xy_str(input$plot_dblclick),
+    "hover: ", xy_str(input$plot_hover),
+    "brush: ", xy_range_str(input$plot_brush)
+  )
+}) ### end scatter plot
+} ### end server function 
 
 ### combine into an app:
 shinyApp(ui = ui, server = server) 
