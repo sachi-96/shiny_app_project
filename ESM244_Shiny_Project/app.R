@@ -10,7 +10,7 @@ library(readxl)
 # Read in the data
 gender_data <- read_xlsx(here("data", "Gender.xlsx"))
 
-# Data wrangling
+# Tidying the data 
 gender_mod <- gender_data %>% 
 rename("HDI Rank" = ...1,
        "Country" = ...2,
@@ -25,6 +25,8 @@ rename("HDI Rank" = ...1,
        "Labour Force Participation (M)'18" = ...19) %>% 
   select(-...4,-...6,-...8,-...10,-...12,-...14,-...16,-...18,-...20) %>% 
   filter(!row_number() %in% c(1, 2, 3, 4, 5, 228:261)) 
+   
+  
 
 
 ### Choose theme 
@@ -112,11 +114,40 @@ ui <-
                         ) # end column
                         ) # end fluid row
                       ), # end tab panel "Slider of ge"
-             tabPanel("Scatter Plot", "lookie here its a plot that you can play with"))
+             tabPanel("Scatter Plot", 
+                      plotOutput("plot1",
+                                 click = "plot_click",
+                                 dblclick = "plot_dblclick",
+                                 hover = "plot_hover",
+                                 brush = "plot_brush"
+                      ),
+                      verbatimTextOutput("info")
+             ))
              
 
 ### create server function:
-server <- function(input, output) {
+server <- function(input, output) { output$plot1 <- renderPlot({
+  plot(gender_mod$Country, gender_mod$`HDI Rank`)
+})
+
+output$info <- renderText({
+  xy_str <- function(e) {
+    if(is.null(e)) return("NULL\n")
+    paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
+  }
+  xy_range_str <- function(e) {
+    if(is.null(e)) return("NULL\n")
+    paste0("xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1), 
+           " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1))
+  }
+  
+  paste0(
+    "click: ", xy_str(input$plot_click),
+    "dblclick: ", xy_str(input$plot_dblclick),
+    "hover: ", xy_str(input$plot_hover),
+    "brush: ", xy_range_str(input$plot_brush)
+  )
+})
 }
 
 ### combine into an app:
