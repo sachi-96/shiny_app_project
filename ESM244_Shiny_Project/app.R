@@ -42,9 +42,16 @@ my_theme <- bs_theme(
 ui <- 
   navbarPage("Understanding the State of Gender Equality Globally", theme = my_theme,
              tabPanel("Home",
-                      "While Gender Equality has been identified as a global goal, 
-                      progress towards Gender Equality remains slow with evidence of backsliding across some key indicators. 
-                      The purpose of this application is to increase awareness of the current state of affairs across regions and countries to promote positive change."),
+                      "While Gender Equality has been identified as a critical global goal by the UN and various multinational organizations, 
+                      Gender Equality remains far from realized.The purpose of this application is to increase awareness of the current state of 
+                      gender equality globally (i.e. across regions and countries) to increase awareness, give individuals resources to become changemakers in their own communities,
+                      and promote positive change.",
+                      fluidPage(
+                        mainPanel(
+                        img(src = "gender-page_v-08.jpeg", height = 350, width = 350),
+                      )
+                      )# end  fluid page "Home"
+                      ), # end tab panel "home"
              tabPanel("Statistics by Region", "Quick summary on state of affairs", # Can change later to make drop down with different outcomes to chose from
                       fluidPage(
                         tabsetPanel(
