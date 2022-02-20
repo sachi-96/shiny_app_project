@@ -106,8 +106,17 @@ ui <-
                         ) # end column
                         ) # end fluid row
                       ), # end tab panel "Slider of ge"
-<<<<<<< HEAD
-             tabPanel("Scatter Plot", "lookie here its a plot that you can play with"),
+             tabPanel("Scatter Plot", "lookie here its a plot that you can play with",
+                      tabPanel("Scatter Plot", 
+                               plotOutput("plot1",
+                                          click = "plot_click",
+                                          dblclick = "plot_dblclick",
+                                          hover = "plot_hover",
+                                          brush = "plot_brush"
+                               ),
+                               verbatimTextOutput("info") 
+                      ) # end scatter plot
+             ), # END END 
              tabPanel("Get Informed & Involved", "We understand that understanding the problem is only the start to working towards solutions. 
                       The resources below provide opportunities for users to get informed on and involved in ongoing global movements towards gender equality. These resources include interventions
                       targeted at women's empowerment, initiatives to engage men as changemakers and promoters of gender equality, and resources for those who themselves may need support.",
@@ -136,18 +145,7 @@ ui <-
                       ) # end fluid page "get involved"
                       ) # end tab panel "get involved"
              )
-=======
-             tabPanel("Scatter Plot", 
-                      plotOutput("plot1",
-                                 click = "plot_click",
-                                 dblclick = "plot_dblclick",
-                                 hover = "plot_hover",
-                                 brush = "plot_brush"
-                      ),
-                      verbatimTextOutput("info") 
-             ) # end scatter plot
-) # END END 
->>>>>>> 2886accdb89409e797f6a83c186806167a2da06f
+             
              
 
 ### create server function:
