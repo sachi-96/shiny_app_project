@@ -38,10 +38,7 @@ my_theme <- bs_theme(
 )
 
 
-
-
-
-
+## Making the user interface
 ui <- 
   navbarPage("Understanding the State of Gender Equality Globally", theme = my_theme,
              tabPanel("Home",
