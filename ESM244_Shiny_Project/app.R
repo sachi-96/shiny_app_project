@@ -121,12 +121,15 @@ ui <-
                                  hover = "plot_hover",
                                  brush = "plot_brush"
                       ),
-                      verbatimTextOutput("info")
-             ))
+                      verbatimTextOutput("info") 
+             ) # end scatter plot
+) # END END 
              
 
 ### create server function:
-server <- function(input, output) { output$plot1 <- renderPlot({
+server <- function(input, output) 
+  { ### start server function
+  output$plot1 <- renderPlot({
   plot(gender_mod$Country, gender_mod$`HDI Rank`)
 })
 
@@ -147,8 +150,8 @@ output$info <- renderText({
     "hover: ", xy_str(input$plot_hover),
     "brush: ", xy_range_str(input$plot_brush)
   )
-})
-}
+}) ### end scatter plot
+} ### end server function 
 
 ### combine into an app:
 shinyApp(ui = ui, server = server) 
