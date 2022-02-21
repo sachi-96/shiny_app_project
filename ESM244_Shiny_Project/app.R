@@ -17,34 +17,7 @@ if(!require(RColorBrewer)) install.packages("RColorBrewer", repos = "http://cran
 ## Reading in country data
 library(magrittr)
 library(rvest)
-url <- "https://www.nationsonline.org/oneworld/country_code_list.htm"
-iso_codes <- url %>%
-  read_html() %>%
-  html_nodes(xpath = '//*[@id="CountryCode"]') %>%
-  html_table()
-iso_codes <- iso_codes[[1]][, -1]
-iso_codes <- iso_codes[!apply(iso_codes, 1, function(x){all(x == x[1])}), ]
-names(iso_codes) <- c("Country", "ISO2", "ISO3", "UN")
-head(iso_codes)
 
-## data on childlessness
-library(readxl)
-url <- "https://www.un.org/en/development/desa/population/publications/dataset/fertility/wfr2012/Data/Data_Sources/TABLE%20A.8.%20%20Percentage%20of%20childless%20women%20and%20women%20with%20parity%20three%20or%20higher.xlsx"
-destfile <- "dataset_childlessness.xlsx"
-download.file(url, destfile)
-childlessness_data <- read_excel(destfile)
-head(childlessness_data)
-
-# We can see that the childlessness data are a bit messy, especially when it comes to the first couple 
-# of rows and column names. We only want to maintain the columns that have country names, periods and 
-# childlessness estimates for different age groups, as well as the rows that refer to data for specific 
-# countries. The resulting data look much better. Note that when we'll convert the childlessness 
-# percentage columns to numeric type later on, the ".." values will automatically change to NA.
-
-cols <- which(grepl("childless", childlessness_data[2, ]))
-childlessness_data <- childlessness_data[-c(1:3), c(1, 3, cols:(cols + 2))]
-names(childlessness_data) <- c("Country", "Period", "35-39", "40-44", "45-49")
-head(childlessness_data)
 
 ## reading in some gender data
 gender_index_data <- read.csv("https://s3.amazonaws.com/datascope-ast-datasets-nov29/datasets/743/data.csv")
@@ -63,22 +36,6 @@ world_data <- fortify(world_data)
 head(world_data)
 
 # changing names of countries
-old_names <- c("Bolivia (Plurinational State of)", "Cabo Verde", "China, Hong Kong Special Administrative Region",
-               "China, Macao Special Administrative Region", "Congo", "Democratic People's Republic of Korea",
-               "Democratic Republic of the Congo", "Iran (Islamic Republic of)", "Lao People's Democratic Republic",
-               "Micronesia (Federated States of)", "Republic of Korea", "Republic of Moldova", "Saint Vincent and the Grenadines",
-               "State of Palestine", "Syrian Arab Republic", "The former Yugoslav Republic of Macedonia",
-               "United Kingdom of Great Britain and Northern Ireland", "United Republic of Tanzania",
-               "United States Virgin Islands", "Venezuela (Bolivarian Republic of)")
-new_names <- c("Bolivia", "Cape Verde", "Hong Kong, SAR China", "Macao, SAR China", "Congo (Brazzaville)",
-               "Korea (North)", "Congo, (Kinshasa)", "Iran, Islamic Republic of", "Lao PDR", "Micronesia, Federated States of",
-               "Korea (South)", "Moldova", "Saint Vincent and Grenadines", "Palestinian Territory", "Syrian Arab Republic (Syria)",
-               "Macedonia, Republic of", "United Kingdom", "Tanzania, United Republic of", "Virgin Islands, US", "Venezuela (Bolivarian Republic)")
-
-for (i in 1:length(old_names)){
-  childlessness_data$Country[childlessness_data$Country == old_names[i]] <- new_names[i]
-}
-
 old_names <- c("French Southern and Antarctic Lands", "Antigua", "Barbuda", "Saint Barthelemy", "Brunei", "Ivory Coast",
                "Democratic Republic of the Congo", "Republic of Congo", "Falkland Islands", "Micronesia", "UK", 
                "Heard Island", "Cocos Islands", "Iran", "Nevis", "Saint Kitts", "South Korea", "Laos", "Saint Martin",
@@ -100,26 +57,20 @@ for (i in 1:length(old_names)){
   world_data$region[world_data$region == old_names[i]] <- new_names[i]
 }
 
-# Now the name changes for countries have been made, we can add the ISO3 codes to our childlessness and world 
-# map data. The gender gap index data already contain these codes, so there's no need for us to add these there.
+# Now the name changes for countries have been made, we can add the ISO3 codes to our world map data. 
+# The gender gap index data already contain these codes, so there's no need for us to add these there.
+world_data["ISO3"] <- gender_index_data$ISO3[match(world_data$region, gender_index_data$Country)]
 
-childlessness_data['ISO3'] <- iso_codes$ISO3[match(childlessness_data$Country, iso_codes$Country)]
-world_data["ISO3"] <- iso_codes$ISO3[match(world_data$region, iso_codes$Country)]
-
-
+## Now merging to datasey
 library(reshape2)
-childlessness_melt <- melt(childlessness_data, id = c("Country", "ISO3", "Period"), 
-                           variable.name = "Indicator", value.name = "Value")
-childlessness_melt$Value <- as.numeric(childlessness_melt$Value)
 gender_index_melt <- melt(gender_index_data, id = c("ISO3", "Country", "Indicator"), 
                           variable.name = "Period", value.name = "Value")
 
 # After melting the data and ensuring they're in the same format, we merge them together using the *rbind()* 
 # function, which we can do here because the data have the same colum names.
 
-childlessness_melt["DataType"] <- rep("Childlessness", nrow(childlessness_melt))
 gender_index_melt["DataType"] <- rep("Gender Gap Index", nrow(gender_index_melt))
-df <- rbind(childlessness_melt, gender_index_melt)
+df <- rbind(gender_index_melt)
 df[] <- lapply(df, as.character)
 df$Value <- as.numeric(df$Value)
 
@@ -162,7 +113,7 @@ worldMaps <- function(df, world_data, data_type, period, indicator){
   world_data['Value'] <- plotdf$Value[match(world_data$ISO3, plotdf$ISO3)]
   
   # Create caption with the data source to show underneath the map
-  capt <- paste0("Source: ", ifelse(data_type == "Childlessness", "United Nations" , "World Bank"))
+  capt <- paste0("Source: ", ifelse(data_type ==  "United Nations" , "World Bank"))
   
   # Specify the plot for the world map
   library(RColorBrewer)
@@ -272,11 +223,11 @@ ui <-
                           
                         ) # end tabsetPanel
                       )),
-             tabPanel("Interactive Map", "Here you can see an interactive world map aint it pretty?",
+             tabPanel("Interactive Map", 
                       fluidPage(
                         
                         # App title
-                        titlePanel("Childlessness and Gender Gap Index Data"),
+                        titlePanel("Gender Gap Index Data"),
                         
                         # Sidebar layout with input and output definitions
                         sidebarLayout(
@@ -364,6 +315,7 @@ ui <-
 
 ### create server function:
 server <- function(input, output) { ### start server function
+  
 ## Create the interactive world map
   output$distPlot <- renderGirafe({
     ggiraph(code = print(worldMaps(df, world_data, input$data_type, input$period, input$indicator)))
@@ -382,7 +334,8 @@ server <- function(input, output) { ### start server function
     choice_third <- as.list(unique(df$Indicator[df$DataType == input$data_type & df$Period == input$period]))
     selectInput(inputId = "indicator", choices = choice_third,
                 label = paste0("Choose the type of ", lab, " you want to explore:"))
-  })
+  }) # end interactive world map output
+  
   output$plot1 <- renderPlot({
   plot(gender_mod$Country, gender_mod$`HDI Rank`)
 })
