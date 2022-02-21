@@ -22,6 +22,7 @@ library(rvest)
 ## reading in some gender data
 gender_index_data <- read.csv("https://s3.amazonaws.com/datascope-ast-datasets-nov29/datasets/743/data.csv")
 head(gender_index_data)
+
 ## cleaning it up
 library(dplyr)
 gender_index_data["RecentYear"] <- apply(gender_index_data, 1, function(x){as.numeric(x[max(which(!is.na(x)))])})
@@ -335,7 +336,8 @@ server <- function(input, output) { ### start server function
     selectInput(inputId = "indicator", choices = choice_third,
                 label = paste0("Choose the type of ", lab, " you want to explore:"))
   }) # end interactive world map output
-  
+
+  ## function for scatterplot output
   output$plot1 <- renderPlot({
   plot(gender_mod$Country, gender_mod$`HDI Rank`)
 })
