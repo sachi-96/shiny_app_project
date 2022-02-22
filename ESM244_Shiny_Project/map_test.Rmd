@@ -58,6 +58,11 @@ gender_mod <- gender_data %>%
   select(-...4,-...6,-...8,-...10,-...12,-...14,-...16,-...18,-...20) %>%
   filter(!row_number() %in% c(1, 2, 3, 4, 5, 228:261))
 
+```
+
+
+### Making reactive data table
+```{r}
 ## Creating a subset of the data to use to make the table
 tab_data <- gender_mod %>% 
   janitor::clean_names()
@@ -68,12 +73,17 @@ tab_data <- tab_data %>% slice(-c(63, 118, 156))
 ## now putting in alphabetical order
 tab_data <- tab_data %>% arrange(country)
 
+### NEED TO CLEAN UP TABLE
 # Interactive Data Table
 tab_data_table <- tab_data %>%
   group_by(country, gender_equality_index_18) 
 
 tab_data_table$Status <- NULL
+```
 
+## making interactive map
+```{r}
+## MAKING INTERACTIVE MAP
 ## creating a subset of the data to use to make a map
 map_data <- gender_mod %>% 
   janitor::clean_names()
@@ -92,10 +102,38 @@ base_map <- left_join(base_map, map_data, by = "region")
 
 ## now taking rid of the nas so only have country with data
 basemap1 <- base_map %>% filter(!is.na(base_map$gender_equality_index_18))
+## ok this worked but have too many lat and long measures for each country need to somehow get one for each
 
+## going to see if I can summarize to just get mean score
+basemap2 <- basemap1 %>% 
+  group_by(region) %>% 
+  summarize(hdi_rank, gender_equality_index_18, long, lat, rank_18, 
+            maternal_mortality_ratio_15, adolescent_birth_rate_15_20, seats_in_parliment_18,
+            secondary_education_m_10_18,
+            secondary_education_f_10_18,
+            labour_force_participation_f_18,
+            labour_force_participation_m_18)
+## ok this just rebuilt the same thing, need to some how just get one measure of lat and long for each country to set with data point
+
+
+
+## trying to create map with leaflet
+leaflet(options = leafletOptions(attributionControl = FALSE)) %>% 
+  addProviderTiles(providers$OpenStreetMap) %>% 
+  addScaleBar(position = "bottomleft") 
+
+
+
+
+```
+
+
+
+### useful old code
+```{r}
+## attempt at interactive map using ggplot
 map1 <- ggplot(basemap1, aes(x = long, y = lat, group = group)) +
   geom_polygon(aes(fill = gender_equality_index_18), color = "black")
-map1
 
 map2 <- map1 + 
   theme(axis.text.x = element_blank(),
@@ -103,18 +141,7 @@ map2 <- map1 +
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         legend.position = "none")
-
-## trying to create map with leaflet
-leaflet(options = leafletOptions(attributionControl = FALSE)) %>% 
-  addProviderTiles(providers$OpenStreetMap) %>% 
-  addScaleBar(position = "bottomleft") 
-
+map2
 ```
-
-
-
-
-
-
 
 
