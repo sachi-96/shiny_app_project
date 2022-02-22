@@ -19,7 +19,6 @@ library(leaflet)
 library(sf)
 library(tidyr)
 library(maptools)
-library(rgdal)
 library(sp)
 library(plotly)
 library(shinydashboard)
@@ -165,21 +164,22 @@ body <- dashboardBody(
               column(
                 sliderInput("mapsel", label = h3("Slider Range"), min = 0, 
                             max = 100, value = c(40, 60)), width = 2),
-              leafletOutput(outputId = "mymap", height = "500px")
+              leafletOutput(outputId = "mymap", height = 500)
               # end mainpanel
             ) # end fluidrow
     ), # end tab item 
     tabItem(tabName = "scatterplot",
             fluidRow(
               box(title = "Scatterplot on Gender Equality outcomes and predictors",
-                  h1("by outcome meausre and predictors"),
+                  h1("by outcome measure and predictors"),
                   p("alter this interactive plot to see how it affects outputs"))
             ),
             plotOutput("plot1",
                        click = "plot_click",
                        dblclick = "plot_dblclick",
                        hover = "plot_hover",
-                       brush = "plot_brush"
+                       brush = "plot_brush",
+                       inline = FALSE
             ),
             verbatimTextOutput("info") 
     ), # end scatter plot),
@@ -222,91 +222,6 @@ ui <- dashboardPage(header, sidebar, body, skin = "blue")
 
 
 
-# ui <- 
-#   navbarPage("Understanding the State of Gender Equality Globally", theme = my_theme,
-#              tabPanel("Home",
-#                       "While Gender Equality has been identified as a global goal, 
-#                       progress towards Gender Equality remains slow with evidence of backsliding across some key indicators. 
-#                       The purpose of this application is to increase awareness of the current state of affairs across regions and countries to promote positive change.",
-#                       fluidPage(
-#                         tabsetPanel(
-#                           tabPanel("Key Articles", "See the Key articles below
-#                                    see: https://www.nytimes.com/2019/12/04/us/domestic-violence-international.html", br()),
-#                           tabPanel("Current Interventions", "See list of ongoing interventions and ways to get involved"),
-#                           mainPanel(img(src = "gender-page_v-08.jpeg", height = 350, width = 350))
-#                         )
-#                       )),
-#              tabPanel("Statistics by Region", "Quick summary on state of affairs", # Can change later to make drop down with different outcomes to chose from
-#                       fluidPage(
-#                         tabsetPanel(
-#                           tabPanel("Women's Empowerment Score", br(),
-#                                    sidebarLayout(
-#                                      sidebarPanel(
-#                                        selectInput(inputId = "pt_color",
-#                                                    label = "Choose World Region",
-#                                                    choices = c("North America",
-#                                                                "Central America", 
-#                                                                "South America",
-#                                                                "Asia",
-#                                                                "Europe",
-#                                                                "Africa")),
-#                                        radioButtons(inputId = "gender_data",
-#                                                     label = "Choose Variables",
-#                                                     choices = c("Year", 
-#                                                                 "Income", 
-#                                                                 "Education")),
-#                                      ), # end sidebar panel
-#                                      mainPanel(
-#                                        img(src = "gender-page_v-08.jpeg", height = 350, width = 350),
-#                                        plotOutput(outputId = "gender_map")) # end mainpanel
-#                                    ) # end sidebarLayout
-#                                    ), # end tabPanel "women empowerment score"
-#                           tabPanel("Acceptance of IPV", br(),
-#                                    sidebarLayout(
-#                                      sidebarPanel(
-#                                        selectInput(inputId = "pt_color",
-#                                                    label = "Choose World Region",
-#                                                    choices = c("North America",
-#                                                                "Central America", 
-#                                                                "South America",
-#                                                                "Asia",
-#                                                                "Europe",
-#                                                                "Africa")),
-#                                        radioButtons(inputId = "gender_data",
-#                                                     label = "Choose Variables",
-#                                                     choices = c("Year", 
-#                                                                 "Income", 
-#                                                                 "Education")),
-#                                      ), # end sidebar panel
-#                                      mainPanel(img(src = "gender-page_v-08.jpeg", height = 350, width = 350),
-#                                                plotOutput(outputId = "gender_map")) # end mainpanel
-#                                    ) # end sidebarLayout
-#                           ), # end tabPanel "Acceptance of IPV")
-#                           
-#                         ) # end tabsetPanel
-#                       )),
-#              tabPanel("Interactive Map", "Here you can see an interactive world map aint it pretty?"),
-#              tabPanel("Slider of GE Index", "Use the slider tool to select a value from the gender equality index and see which countries reflect these values",
-#                       column(
-#                         sliderInput("mapsel", label = h3("Slider Range"), min = 0,
-#                                     max = 100, value = c(40, 60)),width = 2)
-#                       , # end sidebar panel
-#                       leafletOutput(outputId = "mymap", height = "500px")
-#                       # end mainpanel
-#              )
-#              , # end tab panel "Slider of ge"
-#              tabPanel("Scatter Plot", 
-#                       plotOutput("plot1",
-#                                  click = "plot_click",
-#                                  dblclick = "plot_dblclick",
-#                                  hover = "plot_hover",
-#                                  brush = "plot_brush"
-#                       ),
-#                       verbatimTextOutput("info") 
-#              ) # end scatter plot
-# ) # END END 
-#              
-
 ### create server function:
 server <- function(input, output) {
   ### start server function
@@ -325,18 +240,18 @@ server <- function(input, output) {
   
   #### Scatter Plot ### 
   output$plot1 <- renderPlot({
-    plot(gender_mod$Country, gender_mod$`HDI Rank`)
+    plot(gender_mod$`Rank '18`, gender_mod$`HDI Rank`)
   })
   
   output$info <- renderText({
     xy_str <- function(e) {
       if(is.null(e)) return("NULL\n")
-      paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
+      paste0(x=2, round(e$x, 1), y=4, round(e$y, 1), "\n")
     }
     xy_range_str <- function(e) {
       if(is.null(e)) return("NULL\n")
-      paste0("xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1), 
-             " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1))
+      paste0(xmin=2, round(e$xmin, 1), xmax= 2, round(e$xmax, 1), 
+              ymin=4, round(e$ymin, 1),  ymax= 4, round(e$ymax, 1))
     }
     
     paste0(
@@ -375,6 +290,9 @@ server <- function(input, output) {
 
 ### combine into an app:
 shinyApp(ui = ui, server = server) 
+
+
+
 
 # ### create server function:
 # server <- function(input, output) { ### start server function
