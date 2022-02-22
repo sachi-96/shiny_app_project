@@ -8,6 +8,8 @@ library(readxl)
 library(leaflet)
 library(maps)
 library(ggplot2)
+library(plotly)
+
 
 
 world_data <- ggplot2::map_data('world')
@@ -208,7 +210,7 @@ body <- dashboardBody(
     
   ) # end tabItems
 ) # end dashboardBody
->>>>>>> f94770195e91c531e00d9146592567e328863404
+
 
 ### Choose theme 
 app_theme <- bs_theme(
