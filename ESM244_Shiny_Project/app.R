@@ -316,31 +316,6 @@ ui <-
 
 ### create server function:
 server <- function(input, output) { ### start server function
-  
-## Create the interactive world map
-  output$distPlot <- renderGirafe({
-    ggiraph(code = print(worldMaps(df, world_data, input$data_type, input$period, input$indicator)))
-  })
-  
-  # Change the choices for the second selection on the basis of the input to the first selection
-  output$secondSelection <- renderUI({
-    choice_second <- as.list(unique(df$Period[which(df$DataType == input$data_type)]))
-    selectInput(inputId = "period", choices = choice_second,
-                label = "Choose the period for which you want to see the data:")
-  })
-  
-  # Change the choices for the third selection on the basis of the input to the first and second selections
-  output$thirdSelection <- renderUI({
-    lab <- ifelse(input$data_type == "Childlessness", "age group", "indicator")
-    choice_third <- as.list(unique(df$Indicator[df$DataType == input$data_type & df$Period == input$period]))
-    selectInput(inputId = "indicator", choices = choice_third,
-                label = paste0("Choose the type of ", lab, " you want to explore:"))
-  }) # end interactive world map output
-
-  ## function for scatterplot output
-  output$plot1 <- renderPlot({
-  plot(gender_mod$Country, gender_mod$`HDI Rank`)
-})
 
 output$info <- renderText({
   xy_str <- function(e) {
