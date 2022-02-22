@@ -104,6 +104,11 @@ map2 <- map1 +
         axis.title.y = element_blank(),
         legend.position = "none")
 
+## trying to create map with leaflet
+leaflet(options = leafletOptions(attributionControl = FALSE)) %>% 
+  addProviderTiles(providers$OpenStreetMap) %>% 
+  addScaleBar(position = "bottomleft") 
+
 ```
 
 

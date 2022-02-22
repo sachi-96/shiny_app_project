@@ -195,9 +195,16 @@ ui <- dashboardPage(header, sidebar, body, skin = "blue")
 server <- function(input, output) { ### start server function
   
   
-  
+  ## function for data table
   output$table <- renderDT({
     tab_data_table
+  })
+  
+  ## function for interactive map
+  output$mymap <- renderLeaflet({
+    leaflet(options = leafletOptions(attributionControl = FALSE)) %>% 
+      addProviderTiles(providers$OpenStreetMap) %>% 
+      addScaleBar(position = "bottomleft") 
   })
   
   ## Scatterplot function
