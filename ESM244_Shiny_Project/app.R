@@ -5,6 +5,17 @@ library(bslib)
 library(ggplot2)
 library(shinythemes)
 library(readxl)
+library(leaflet)
+library(maps)
+library(ggplot2)
+
+
+world_data <- ggplot2::map_data('world')
+world_data <- fortify(world_data)
+
+world_data_clean <- world_data %>% select(region,lat,long) %>% group_by(region) %>%
+  summarise(latm = max(lat, na.rm=TRUE),longm = max(long, na.rm=TRUE)) %>% rename("Country" = region)
+
 
 
 # Read in the data
@@ -27,7 +38,7 @@ rename("HDI Rank" = ...1,
   filter(!row_number() %in% c(1, 2, 3, 4, 5, 228:261)) 
    
   
-
+gender_mod <- merge(x = gender_mod, y = world_data_clean, by = "Country", all.x = TRUE)
 
 ### Choose theme 
 my_theme <- bs_theme(
@@ -107,13 +118,14 @@ ui <-
                       )),
              tabPanel("Interactive Map", "Here you can see an interactive world map aint it pretty?"),
              tabPanel("Slider of GE Index", "Use the slider tool to select a value from the gender equality index and see which countries reflect these values",
-                      fluidRow(
-                        column(4,
-                               sliderInput("slider2", label = h3("Slider Range"), min = 0,
-                                           max = 100, value = c(40, 60))
-                        ) # end column
-                        ) # end fluid row
-                      ), # end tab panel "Slider of ge"
+                      column(
+                        sliderInput("mapsel", label = h3("Slider Range"), min = 0,
+                                    max = 100, value = c(40, 60)),width = 2)
+                      , # end sidebar panel
+                      leafletOutput(outputId = "mymap", height = "500px")
+                      # end mainpanel
+             )
+             , # end tab panel "Slider of ge"
              tabPanel("Scatter Plot", 
                       plotOutput("plot1",
                                  click = "plot_click",
@@ -129,6 +141,8 @@ ui <-
 ### create server function:
 server <- function(input, output) 
   { ### start server function
+  
+  #### Scatter Plot ### 
   output$plot1 <- renderPlot({
   plot(gender_mod$Country, gender_mod$`HDI Rank`)
 })
@@ -151,6 +165,31 @@ output$info <- renderText({
     "brush: ", xy_range_str(input$plot_brush)
   )
 }) ### end scatter plot
+
+####Slider Map Portion### 
+
+filter_range <- reactive({
+  gender_mod %>% 
+    filter(gender_mod$`Gender Equality Index '18` >= input$mapsel[1]) %>% 
+    filter(gender_mod$`Gender Equality Index '18` <= input$mapsel[2])
+})
+
+output$map <- renderLeaflet({
+  leaflet() %>% 
+    addTiles() %>% 
+    addMarkers(data = filter_range(), lng = ~longm, lat = ~latm)
+})
+
+output$mymap <- renderLeaflet({
+  leaflet(filter_range()) %>%
+    addProviderTiles("OpenStreetMap.Mapnik") %>%
+    addCircleMarkers(lng = ~longm, 
+                     lat = ~latm, 
+                     #layerId = ~location,
+                     # adding clusterOptions removes the group in observeEvent
+                     #clusterOptions = markerClusterOptions() 
+    )
+})
 } ### end server function 
 
 ### combine into an app:
