@@ -133,7 +133,13 @@ body <- dashboardBody(
               box(title = "Interactive world map",
                   h1('look at this interactive world map its so cool'),
                   p("wow can it be real, play with the map be amazed"))
-            )),
+            ), # end fluid row
+            fluidPage( ## building output for map
+              leafletOutput("mymap"),
+              p(),
+              actionButton("recalc", "New points")
+            ) # end fluidpage
+            ),
     tabItem(tabName = "slider",
             fluidRow(
               column(4,
@@ -182,7 +188,74 @@ app_theme <- bs_theme(
 ## define UI for application
 ui <- dashboardPage(header, sidebar, body, skin = "blue")
 
-## Making the user interface
+
+
+
+### create server function:
+server <- function(input, output) { ### start server function
+  
+  
+  
+  output$table <- renderDT({
+    tab_data_table
+  })
+  
+  ## Scatterplot function
+  output$info <- renderText({
+    xy_str <- function(e) {
+      if(is.null(e)) return("NULL\n")
+      paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
+    }
+    xy_range_str <- function(e) {
+      if(is.null(e)) return("NULL\n")
+      paste0("xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1),
+             " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1))
+    }
+    
+    paste0(
+      "click: ", xy_str(input$plot_click),
+      "dblclick: ", xy_str(input$plot_dblclick),
+      "hover: ", xy_str(input$plot_hover),
+      "brush: ", xy_range_str(input$plot_brush)
+    )
+  }) ### end scatter plot
+} ### end server function 
+
+### combine into an app:
+shinyApp(ui = ui, server = server) 
+
+
+
+
+##### USEFUL CODE TO DRAW FROM 
+
+## OLD INTERACTIVE MAP FUNCTION
+## Interactive map function---- need to edit to make work for my data
+# observe({
+#   if(!is.null(input$year)){
+#     map <- joinCountryData2Map(selected(), joinCode = "ISO3",
+#                                nameJoinColumn = "ISO3")
+#     leafletProxy("worldmap", data = map) %>%
+#       addTiles() %>% 
+#       clearShapes() %>% 
+#       addPolygons(fillColor = ~pal(map$score),
+#                   weight = 2,
+#                   opacity = 1,
+#                   color = "white",
+#                   dashArray = "3",
+#                   fillOpacity = 0.7,
+#                   highlight = highlightOptions(
+#                     weight = 5,
+#                     color = "white",
+#                     dashArray = "3",
+#                     fillOpacity = .8,
+#                     bringToFront = TRUE),
+#                   label = ~paste(as.character(map$country),
+#                                  "Total Index Score: ", as.character(map$score)))
+#   }})
+
+
+## OLD UI UPDATED ABOVE!
 # ui <- 
 #   navbarPage("Understanding the State of Gender Equality Globally", theme = app_theme,
 #              tabPanel("Home",
@@ -332,60 +405,3 @@ ui <- dashboardPage(header, sidebar, body, skin = "blue")
 #                       ) # end fluid page "get involved"
 #              ) # end tab panel "get involved"
 #              )
-
-
-
-### create server function:
-server <- function(input, output) { ### start server function
-  
-  ## Interactive map function---- need to edit to make work for my data
-  # observe({
-  #   if(!is.null(input$year)){
-  #     map <- joinCountryData2Map(selected(), joinCode = "ISO3",
-  #                                nameJoinColumn = "ISO3")
-  #     leafletProxy("worldmap", data = map) %>%
-  #       addTiles() %>% 
-  #       clearShapes() %>% 
-  #       addPolygons(fillColor = ~pal(map$score),
-  #                   weight = 2,
-  #                   opacity = 1,
-  #                   color = "white",
-  #                   dashArray = "3",
-  #                   fillOpacity = 0.7,
-  #                   highlight = highlightOptions(
-  #                     weight = 5,
-  #                     color = "white",
-  #                     dashArray = "3",
-  #                     fillOpacity = .8,
-  #                     bringToFront = TRUE),
-  #                   label = ~paste(as.character(map$country),
-  #                                  "Total Index Score: ", as.character(map$score)))
-  #   }})
-  
-  output$table <- renderDT({
-    tab_data_table
-  })
-  
-  ## Scatterplot function
-  output$info <- renderText({
-    xy_str <- function(e) {
-      if(is.null(e)) return("NULL\n")
-      paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
-    }
-    xy_range_str <- function(e) {
-      if(is.null(e)) return("NULL\n")
-      paste0("xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1),
-             " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1))
-    }
-    
-    paste0(
-      "click: ", xy_str(input$plot_click),
-      "dblclick: ", xy_str(input$plot_dblclick),
-      "hover: ", xy_str(input$plot_hover),
-      "brush: ", xy_range_str(input$plot_brush)
-    )
-  }) ### end scatter plot
-} ### end server function 
-
-### combine into an app:
-shinyApp(ui = ui, server = server) 
