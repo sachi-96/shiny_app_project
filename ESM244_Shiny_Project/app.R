@@ -60,6 +60,7 @@ tab_data <- tab_data %>% slice(-c(63, 118, 156))
 tab_data <- tab_data %>% arrange(country)
 
 # Interactive Data Table
+### Need to clean up table
 tab_data_table <- tab_data %>%
   group_by(country, gender_equality_index_18) 
 
