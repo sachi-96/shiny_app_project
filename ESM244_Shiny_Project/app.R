@@ -24,6 +24,8 @@ library(plotly)
 library(shinydashboard)
 library(DT)
 
+
+
 ## cleaning world lat and long data
 world_data <- ggplot2::map_data('world')
 world_data <- fortify(world_data)
@@ -55,21 +57,6 @@ gender_mod <- gender_data %>%
 gender_mod <- merge(x = gender_mod, y = world_data_clean, by = "Country", all.x = TRUE)
 
 
-# # Tidying the data
-gender_mod <- gender_data %>%
-  rename("HDI Rank" = ...1,
-         "Country" = ...2,
-         "Gender Equality Index '18" = ...3,
-         "Rank '18" = ...5,
-         "Maternal Mortality Ratio '15" = SDG3.1,
-         "Adolescent Birth Rate '15-'20" = SDG3.7,
-         "Seats in Parliment '18" = SDG5.5,
-         "Secondary Education (F)'10-'18" = SDG4.6,
-         "Secondary Education (M)'10-'18" = ...15,
-         "Labour Force Participation (F)'18" = ...17,
-         "Labour Force Participation (M)'18" = ...19) %>%
-  select(-...4,-...6,-...8,-...10,-...12,-...14,-...16,-...18,-...20) %>%
-  filter(!row_number() %in% c(1, 2, 3, 4, 5, 228:261))
 
 ## Creating a subset of the data to use to make the table
 tab_data <- gender_mod %>% 
@@ -100,6 +87,10 @@ map_data <- map_data %>% arrange(country) %>%
   rename(
     region = country
   )
+
+# slider map
+map_data$gender_equality_index_18 <- as.numeric(map_data$gender_equality_index_18)
+
 ## using base map data from ggplot to try to assemble em
 base_map <- map_data("world")
 base_map <- left_join(base_map, map_data, by = "region")
@@ -160,13 +151,14 @@ body <- dashboardBody(
             ) # end fluidpage
     ),
     tabItem(tabName = "slider",
-            fluidRow(
               column(
-                sliderInput("mapsel", label = h3("Slider Range"), min = 0, 
-                            max = 100, value = c(40, 60)), width = 2),
-              leafletOutput(outputId = "mymap", height = 500)
+                sliderInput("mapsel", label = h3("Slider Range"), min = round(min(map_data$gender_equality_index_18,na.rm = T),2), 
+                            max = round(max(map_data$gender_equality_index_18,na.rm = T),2), value = c(0.1, 0.6)), width = 1.5),
+            # textOutput("selected_var"),
+            # tableOutput("df")
+            leafletOutput(outputId = "mymap", height = 500)
               # end mainpanel
-            ) # end fluidrow
+             # end fluidrow
     ), # end tab item 
     tabItem(tabName = "scatterplot",
             fluidRow(
@@ -263,18 +255,28 @@ server <- function(input, output) {
   }) ### end scatter plot
   
   ####Slider Map Portion### 
-  
   filter_range <- reactive({
-    gender_mod %>% 
-      filter(gender_mod$`Gender Equality Index '18` >= input$mapsel[1]) %>% 
-      filter(gender_mod$`Gender Equality Index '18` <= input$mapsel[2])
+    map_data %>% 
+      dplyr::filter(gender_equality_index_18 >= as.numeric(input$mapsel[1])) %>% 
+      dplyr::filter(gender_equality_index_18 <= as.numeric(input$mapsel[2]))
   })
+  
+  maxLong = max(map_data$longm)
+  maxLat = max(map_data$latm)
+  minLong = min(map_data$longm)
+  minLat = min(map_data$latm)
   
   output$map <- renderLeaflet({
-    leaflet() %>% 
+    leaflet(filter_range()) %>% 
       addTiles() %>% 
-      addMarkers(data = filter_range(), lng = ~longm, lat = ~latm)
+      addMarkers(data = filter_range(), lng = ~longm, lat = ~latm,) %>%
+      fitBounds(minLong,minLat,maxLong,maxLat)
   })
+  
+  output$selected_var <- renderText({ 
+    paste("You have selected", input$mapsel[1])
+  })
+  
   
   output$mymap <- renderLeaflet({
     leaflet(filter_range()) %>%
@@ -285,6 +287,14 @@ server <- function(input, output) {
                        # adding clusterOptions removes the group in observeEvent
                        #clusterOptions = markerClusterOptions() 
       )
+  })
+  
+  output$df <- renderTable({filter_range()})
+  ## function for interactive map
+  output$joemap <- renderLeaflet({
+    leaflet(options = leafletOptions(attributionControl = FALSE)) %>% 
+      addProviderTiles(providers$OpenStreetMap) %>% 
+      addScaleBar(position = "bottomleft") 
   })
 }
 
